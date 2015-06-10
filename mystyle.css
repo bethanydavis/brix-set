@@ -1,0 +1,16 @@
+
+
+h1 {
+	font-family:sans-serif;
+	float:center;
+}
+
+#cardpanel {
+	float:center;
+}
+#infopanel {
+	background-color:#eeeeee;
+	height:400px;
+	width:150px;
+	float:right;
+}
