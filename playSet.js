@@ -86,7 +86,18 @@ function deal3(a, b, c) {
 }
 
 function newDeck() {
+	var cardIndex = 0;
 	//populates each of 81 cards
+	for(var i = 1; i < 4; i++) {
+		for(var j = 1; j < 4; j++) {
+			for(var k = 1; k < 4; k++) {
+				for(var m = 1; m < 4; m++) {
+					deck[cardIndex] = new set.Card(i, j, k, m);
+					cardIndex++;
+				}
+			}
+		}
+	}
 }
 
 function shuffleDeck() {
