@@ -1,6 +1,6 @@
 var set = {};
 
-var set.Card = function(shape, number, shading, color) {
+set.Card = function(shape, number, shading, color) {
 	this.shape = shape;
 	this.num = number;
 	this.shading = shading;
