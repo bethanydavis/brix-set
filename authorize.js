@@ -47,19 +47,40 @@ function start(){
 function onFileInitialize(model) {
 	//alert('Initializing');
 	var deck = model.createList();
-	deck.push("Hello");
-	deck.push("There");
+	var visible = model.createList();
+	var players = model.createList();
+	
+	model.getRoot().set('numPlayers', 0);
 	model.getRoot().set('deck', deck);
+	model.getRoot().set('cardList', visible);
+	model.getRoot().set('players', players);
+
+	startGame();
 }
 
 // After a file has been initialized and loaded, we can access the document. We will 
 // wire up the data model to the UI.
 function onFileLoaded(doc) {
 	window.doc = doc;
-	//alert('File loaded.');
-	alert(doc.getModel().getRoot().get('deck').toString());
+	alert('File loaded.');
+	
+	var playerNumber = doc.getModel().getRoot().get('numPlayers');
+	playerNumber += 1;
+	doc.getModel().getRoot().set('numPlayers', playerNumber);
+
+	// Add new player to the 'players' map. 
+	var player = new Player('Player ' + playerNumber);
+	
+	var players = doc.getModel().getRoot().get('players');
+	players.push(player);
+
+	alert("Players: " + players + ". You are " + player.name + ".");
 }
 
+function Player (name){
+	this.name = name;
+	this.score = 0;
+}
 
 
 
