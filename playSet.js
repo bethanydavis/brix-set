@@ -10,6 +10,28 @@ set.Card = function(shape, number, shading, color) {
 var cardList = []; //visible cards
 var deck = []; //rest of cards
 
+var first;
+var second;
+var third;
+
+// Given the cardNum that a user clicks on, set the click value to that index.  If it is the third click,
+// check if a set has been selected, and return whether a set has been selected.
+function doClick(cardNum) {
+	if(first == undefined) {
+		first = cardNum;
+		return false;
+	}
+	else if(second == undefined) {
+		second = cardNum;
+		return false;
+	}
+	else if(third == undefined) {
+		third = cardNum;
+		return isSet();	
+	}
+	return false;
+}
+
 //clicks are ints corresponding to cardList indeces
 //retrieve each card and check its properties
 function isSet(click1, click2, click3) {
