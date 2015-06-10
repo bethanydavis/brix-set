@@ -45,11 +45,19 @@ function start(){
 // The first time a file is opened, it must be initialized with the document structure.
 // This function will add a collaborative string to our model at the root. 
 function onFileInitialize(model) {
+	//alert('Initializing');
+	var deck = model.createList();
+	deck.push("Hello");
+	deck.push("There");
+	model.getRoot().set('deck', deck);
 }
 
 // After a file has been initialized and loaded, we can access the document. We will 
 // wire up the data model to the UI.
 function onFileLoaded(doc) {
+	window.doc = doc;
+	//alert('File loaded.');
+	alert(doc.getModel().getRoot().get('deck').toString());
 }
 
 
