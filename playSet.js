@@ -19,7 +19,6 @@ var third;
 function doClick(cardNum) {
 	if(first == undefined) {
 		first = cardNum;
-		return false;
 	}
 	else if(second == undefined) {
 		second = cardNum;
@@ -27,9 +26,21 @@ function doClick(cardNum) {
 	}
 	else if(third == undefined) {
 		third = cardNum;
-		return isSet();	
+		if(isSet(first, second, third) {
+			//increment player score
+			deal3(first, second, third);
+			resetClicks();	
+			if(isGameOver()){
+				invokeGameOver();
+			}
+		}	
 	}
-	return false;
+}
+
+function resetClicks() {
+	first = undefined;
+	second = undefined;
+	third = undefined;
 }
 
 //clicks are ints corresponding to cardList indeces
@@ -134,3 +145,8 @@ function startGame() {
 	deal3(6, 7, 8);
 	deal3(9, 10, 11);
 }
+
+function invokeGameOver() {
+	//should display some sort of game over indication
+}
+
