@@ -13,13 +13,12 @@ var visibleCards[];
 //clicks are ints corresponding to cardList indeces
 //retrieve each card and check its properties
 function isSet(click1, click2, click3) {
-	if(click1 == null || click1 == undefined) {
+	if(click1 == undefined || click2 == undefined || click3 == undefined) {
 		return false;
 	}
-	if(click2 == null || click2 == undefined) {
-		return false;
-	}
-	if(click3 == null || click3 == undefined) {
+
+	//can't click or try identical cards in set
+	if(click1 == click2 || click2 == click3 || click3 == click1) {
 		return false;
 	}
 	
@@ -47,4 +46,20 @@ function isSet(click1, click2, click3) {
 	return conditionsMet;
 }
 
- 
+//A really inefficient way to check for the existence of a set within the current visible cards
+function existsSet() {
+	for(var i = 0; i < cardList.length; i++){
+		for(var j = 0; j < cardList.length; j++){
+			for(var k = 0; k < cardList.length; k++){
+				if(isSet(i, j, k){
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+} 
+
+
+
+
