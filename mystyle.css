@@ -1,8 +1,9 @@
 
 
 h1 {
-	font-family:sans-serif;
+	font-family: 'Roboto', sans-serif;
 	float:center;
+	font-size: 48px;
 }
 
 #cardpanel {
