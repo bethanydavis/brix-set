@@ -123,7 +123,7 @@ function newDeck() {
 }
 
 function shuffleDeck() {
-	//randomize the deck
+	deck.sort(function() { return 0.5 - Math.random() });
 }
 
 function startGame() {
