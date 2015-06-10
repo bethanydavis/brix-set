@@ -7,8 +7,8 @@ var set.Card = function(shape, number, shading, color) {
 	this.color = color;
 }
 
-var cardList[];
-var visibleCards[];
+var cardList[]; //visible cards
+var deck[]; //rest of cards
 
 //clicks are ints corresponding to cardList indeces
 //retrieve each card and check its properties
@@ -60,6 +60,9 @@ function existsSet() {
 	return false;
 } 
 
+function isGameOver() {
+	return cardList.length == 0 || (deck.length == 0 && !existsSet());
+}
 
 
 
