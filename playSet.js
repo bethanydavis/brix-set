@@ -65,4 +65,39 @@ function isGameOver() {
 }
 
 
+function deal3(a, b, c) {
+	if(deck.length == 0) {
+		return;
+	}
+	if(deck.length == 1) {
+		// can only deal 1 card
+		cardList[a] = deck.shift();
+		return;
+	}
+	if(deck.length == 2) {
+		//can only deal 2 cards
+		cardList[a] = deck.shift();
+		cardList[b] = deck.shift();
+		return;
+	}
+	cardList[a] = deck.shift();
+	cardList[b] = deck.shift();
+	cardList[c] = deck.shift();
+}
 
+function newDeck() {
+	//populates each of 81 cards
+}
+
+function shuffleDeck() {
+	//randomize the deck
+}
+
+function startGame() {
+	newDeck();
+	shuffleDeck();
+	deal3(0, 1, 2);
+	deal3(3, 4, 5);
+	deal3(6, 7, 8);
+	deal3(9, 10, 11);
+}
