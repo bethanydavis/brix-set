@@ -73,9 +73,23 @@ function onFileLoaded(doc) {
 	
 	var players = doc.getModel().getRoot().get('players');
 	players.push(player);
+	players.addEventListener(gapi.drive.realtime.EventType.VALUES_ADDED, updatePlayers);
+	players.addEventListener(gapi.drive.realtime.EventType.VALUES_SET, updatePlayers);
+	players.addEventListener(gapi.drive.realtime.EventType.VALUES_REMOVED, updatePlayers);
+	updatePlayers();
 
 	alert("Players: " + players + ". You are " + player.name + ".");
 }
+
+var updatePlayers = function(event){
+	var players = window.doc.getModel().getRoot().get('players')
+	var infoString = "<b>Players</b><br>";
+	for (i = 0; i < players.length; i++){
+		infoString += "<b>" + players.get(i).name + "</b>: " + players.get(i).score + "<br>";
+	}
+	document.getElementById("playerInfo").innerHTML = infoString;
+	//alert("Players were updated! " + window.doc.getModel().getRoot().get('players'));
+};
 
 function Player (name){
 	this.name = name;
