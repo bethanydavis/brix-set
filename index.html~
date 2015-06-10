@@ -4,7 +4,7 @@
 
 		<style>
 		#cardpanel {
-			background-color:#559955;
+			background-color:#55ff55;
 			float:right;
 		}
 		#infopanel {
