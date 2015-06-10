@@ -146,6 +146,13 @@ function startGame() {
 	deal3(9, 10, 11);
 }
 
+function incrementScore(quantity){
+	var scores = document.getModel().get('playerScores');
+	var updatedScore = scores.get(window.doc.playerName);
+	updatedScore += quantity;
+	scores.set(window.doc.playerName, updatedScore);
+}
+
 function invokeGameOver() {
 	//should display some sort of game over indication
 }

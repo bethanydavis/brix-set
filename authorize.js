@@ -48,12 +48,15 @@ function onFileInitialize(model) {
 	//alert('Initializing');
 	var deck = model.createList();
 	var visible = model.createList();
-	var players = model.createList();
+	var playerScores = model.createMap();
 	
 	model.getRoot().set('numPlayers', 0);
 	model.getRoot().set('deck', deck);
 	model.getRoot().set('cardList', visible);
-	model.getRoot().set('players', players);
+	model.getRoot().set('playerScores', playerScores);
+
+
+
 
 	startGame();
 }
@@ -62,39 +65,35 @@ function onFileInitialize(model) {
 // wire up the data model to the UI.
 function onFileLoaded(doc) {
 	window.doc = doc;
-	alert('File loaded.');
+	//alert('File loaded.');
 	
+	//Get this player number and increment global number of players
 	var playerNumber = doc.getModel().getRoot().get('numPlayers');
 	playerNumber += 1;
 	doc.getModel().getRoot().set('numPlayers', playerNumber);
 
 	// Add new player to the 'players' map. 
-	var player = new Player('Player ' + playerNumber);
-	
-	var players = doc.getModel().getRoot().get('players');
-	players.push(player);
-	players.addEventListener(gapi.drive.realtime.EventType.VALUES_ADDED, updatePlayers);
-	players.addEventListener(gapi.drive.realtime.EventType.VALUES_SET, updatePlayers);
-	players.addEventListener(gapi.drive.realtime.EventType.VALUES_REMOVED, updatePlayers);
+	var scores = doc.getModel().getRoot().get('playerScores');
+	var playerName = 'Player ' + playerNumber;
+	window.doc.playerName = playerName;
+	document.getElementById("playerLabel").innerHTML = "<b>" + window.doc.playerName + "</b>";
+	scores.set(playerName, 0);
+	scores.addEventListener(gapi.drive.realtime.EventType.VALUE_CHANGED, updatePlayers);
 	updatePlayers();
 
-	alert("Players: " + players + ". You are " + player.name + ".");
+	//alert("Players: " + players + ". You are " + player.name + ".");
 }
 
 var updatePlayers = function(event){
-	var players = window.doc.getModel().getRoot().get('players')
-	var infoString = "<b>Players</b><br>";
-	for (i = 0; i < players.length; i++){
-		infoString += "<b>" + players.get(i).name + "</b>: " + players.get(i).score + "<br>";
+	var scores = window.doc.getModel().getRoot().get('playerScores')
+	var infoString = "<b>Players:</b><br><br>";
+	var keys = scores.keys();
+	for (i = 0; i < keys.length; i++){
+		infoString += "<b>" + keys[i] + "</b>: " + scores.get(keys[i]) + "<br>";
 	}
 	document.getElementById("playerInfo").innerHTML = infoString;
 	//alert("Players were updated! " + window.doc.getModel().getRoot().get('players'));
 };
-
-function Player (name){
-	this.name = name;
-	this.score = 0;
-}
 
 
 
