@@ -10,6 +10,7 @@ h1 {
 	float:center;
 }
 #infopanel {
+	font-family: 'Roboto', sans-serif;
 	background-color:#eeeeee;
 	height:400px;
 	width:150px;
