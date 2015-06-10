@@ -7,8 +7,8 @@ set.Card = function(shape, number, shading, color) {
 	this.color = color;
 }
 
-var cardList[]; //visible cards
-var deck[]; //rest of cards
+var cardList = []; //visible cards
+var deck = []; //rest of cards
 
 //clicks are ints corresponding to cardList indeces
 //retrieve each card and check its properties
