@@ -157,3 +157,10 @@ function invokeGameOver() {
 	//should display some sort of game over indication
 }
 
+function incrementScore(quantity){
+	var scores = window.doc.getModel().getRoot().get('playerScores');
+	var updatedScore = scores.get(window.doc.playerName);
+	updatedScore += quantity;
+	scores.set(window.doc.playerName, updatedScore);
+}
+
