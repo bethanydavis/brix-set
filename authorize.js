@@ -47,16 +47,13 @@ function start(){
 function onFileInitialize(model) {
 	//alert('Initializing');
 	var deck = model.createList();
-	var visible = model.createList();
+	var cardList = model.createList();
 	var playerScores = model.createMap();
 	
 	model.getRoot().set('numPlayers', 0);
 	model.getRoot().set('deck', deck);
-	model.getRoot().set('cardList', visible);
+	model.getRoot().set('cardList', cardList);
 	model.getRoot().set('playerScores', playerScores);
-
-
-
 
 	startGame();
 }
@@ -66,6 +63,11 @@ function onFileInitialize(model) {
 function onFileLoaded(doc) {
 	window.doc = doc;
 	//alert('File loaded.');
+
+	//Listen for changes to cards. 
+	var cardList = document.getModel().get('cardList');
+	cardList.addEventListener(gapi.drive.realtime.EventType.VALUE_ADDED, updateCardImage);
+	cardList.addEventListener(gapi.drive.realtime.EventType.VALUE_SET, updateCardImage);
 	
 	//Get this player number and increment global number of players
 	var playerNumber = doc.getModel().getRoot().get('numPlayers');
@@ -82,6 +84,13 @@ function onFileLoaded(doc) {
 	updatePlayers();
 
 	//alert("Players: " + players + ". You are " + player.name + ".");
+}
+
+// Called when a visible card has changed. 
+var updateCardImage = function(index){
+	var cardList = document.getModel().get('cardList');
+	var card = cardList.get(index);
+	document.getElementById('card' + index).src=card.imgUrlString;
 }
 
 var updatePlayers = function(event){
