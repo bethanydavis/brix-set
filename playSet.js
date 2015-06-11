@@ -28,7 +28,7 @@ function doClick(cardNum) {
 	else if(third == undefined) {
 		third = cardNum;
 		if(isSet(first, second, third) {
-			//increment player score
+			incrementScore(3);
 			deal3(first, second, third);
 			resetClicks();	
 			if(isGameOver()){
@@ -98,31 +98,61 @@ function isGameOver() {
 	return cardList.length == 0 || (deck.length == 0 && !existsSet());
 }
 
-
+// for up to 3 cards: gets next card from deck, removes from deck, replaces in visible card list at index, updates image
 function deal3(a, b, c) {
 	if(deck.length == 0) {
 		return;
 	}
 	if(deck.length == 1) {
 		// can only deal 1 card
-		cardList.insert(a, deck.get(0));
+		var firstCard = deck.get(0);
 		deck.remove(0);
+		var value = [firstCard];
+		cardList.replaceRange(a, value);
+		document.getElementById('card' + a).src=firstCard.imgUrlString;
 		return;
 	}
 	if(deck.length == 2) {
 		//can only deal 2 cards
-		cardList.insert(a, deck.get(0));
+
+		var oneOfTwo = deck.get(0);
 		deck.remove(0);
-		cardList.insert(b, deck.get(0));
+		var valueOne = [oneOfTwo];
+		cardList.replaceRange(a, valueOne);
+		document.getElementById('card' + a).src=oneOfTwo.imgUrlString;
+		
+		
+		var twoOfTwo = deck.get(0);
 		deck.remove(0);
+		var valueTwo = [twoOfTwo];
+		cardList.replaceRange(b, valueTwo);
+		document.getElementById('card' + b).src=twoOfTwo.imgUrlString;
 		return;
 	}
-	cardList.insert(a, deck.get(0));
+	// dealing all 3 cards otherwise:
+
+	//first card
+	var firstOfThree = deck.get(0);
 	deck.remove(0);
-	cardList.insert(b, deck.get(0));
+	var firstValOfThree = [firstOfThree];
+	cardList.replaceRange(a, firstValOfThree);
+	document.getElementById('card' + a).src=oneOfThree.imgUrlString;
+
+
+	//second card
+	var twoOfThree = deck.get(0);
 	deck.remove(0);
-	cardList.insert(c, deck.get(0));
+	var twoValOfThree = [twoOfThree];
+	cardList.replaceRange(b, twoValOfThree);
+	document.getElementById('card' + b).src=twoOfThree.imgUrlString;
+
+	
+	//third card
+	var threeOfThree = deck.get(0);
 	deck.remove(0);
+	var threeValOfThree = [threeOfThree];
+	cardList.replaceRange(c, threeValOfThree);
+	document.getElementById('card' + c).src=threeOfThree.imgUrlString;
 }
 
 function newDeck() {
