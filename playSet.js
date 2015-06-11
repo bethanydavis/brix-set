@@ -8,8 +8,8 @@ set.Card = function(shape, number, shading, color) {
 	this.imgUrlString = ((((('images/img' + shape) + number) + shading) + color) + '.png')
 }
 
-var cardList = document.getModel().get('cardList'); //visible cards, collab
-var deck = document.getModel().get('deck'); //rest of cards - collab
+var cardList = window.doc.getModel().get('cardList'); //visible cards, collab
+var deck = window.doc.getModel().get('deck'); //rest of cards - collab
 
 var first;
 var second;
@@ -184,7 +184,7 @@ function startGame() {
 }
 
 function incrementScore(quantity){
-	var scores = document.getModel().get('playerScores');
+	var scores = window.doc.get('playerScores');
 	var updatedScore = scores.get(window.doc.playerName);
 	updatedScore += quantity;
 	scores.set(window.doc.playerName, updatedScore);
@@ -196,7 +196,7 @@ function invokeGameOver() {
 	}
 	document.getElementById('card1').src='images/brixcard.png';
 	document.getElementById('card5').src='images/setcard.png';
-	document.getElementById('card6').src='images/android.png');
+	document.getElementById('card6').src='images/android.png';
 }
 
 
