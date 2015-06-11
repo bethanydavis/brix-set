@@ -5,7 +5,7 @@ set.Card = function(shape, number, shading, color) {
 	this.num = number;
 	this.shading = shading;
 	this.color = color;
-	this.imgUrlString = 'img' + shape + number + shading + color + '.png'
+	this.imgUrlString = ((((('img' + shape) + number) + shading) + color) + '.png')
 }
 
 var cardList = document.getModel().get('cardList'); //visible cards, collab
