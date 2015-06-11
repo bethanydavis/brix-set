@@ -27,7 +27,7 @@ function doClick(cardNum) {
 	}
 	else if(third == undefined) {
 		third = cardNum;
-		if(isSet(first, second, third) {
+		if(isSet(first, second, third)) {
 			incrementScore(3);
 			deal3(first, second, third);
 			resetClicks();	
@@ -85,7 +85,7 @@ function existsSet() {
 	for(var i = 0; i < cardList.length; i++){
 		for(var j = 0; j < cardList.length; j++){
 			for(var k = 0; k < cardList.length; k++){
-				if(isSet(i, j, k){
+				if(isSet(i, j, k)){
 					return true;
 				}
 			}
@@ -171,7 +171,7 @@ function newDeck() {
 }
 
 function shuffleDeck() {
-	deck.sort(function() { return 0.5 - Math.random() });
+	//deck.sort(function() { return 0.5 - Math.random() });
 }
 
 function startGame() {
