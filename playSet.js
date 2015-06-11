@@ -7,8 +7,8 @@ set.Card = function(shape, number, shading, color) {
 	this.color = color;
 }
 
-var cardList = []; //visible cards
-var deck = []; //rest of cards
+var cardList = []; //visible cards TODO make collaborative
+var deck = []; //rest of cards TODO make collaborative
 
 var first;
 var second;
@@ -56,9 +56,9 @@ function isSet(click1, click2, click3) {
 	}
 	
 	var conditionsMet = true;
-	var card1 = cardList[click1];
-	var card2 = cardList[click2];
-	var card3 = cardList[click3];
+	var card1 = cardList.get(click1);
+	var card2 = cardList.get(click2);
+	var card3 = cardList.get(click3);
 	
 	var sameColor = (card1.color == card2.color && card2.color == card3.color);
 	var diffColor = (card1.color != card2.color && card2.color != card3.color && card1.color != card3.color);
@@ -104,18 +104,24 @@ function deal3(a, b, c) {
 	}
 	if(deck.length == 1) {
 		// can only deal 1 card
-		cardList[a] = deck.shift();
+		cardList.insert(a, deck.get(0));
+		deck.remove(0);
 		return;
 	}
 	if(deck.length == 2) {
 		//can only deal 2 cards
-		cardList[a] = deck.shift();
-		cardList[b] = deck.shift();
+		cardList.insert(a, deck.get(0));
+		deck.remove(0);
+		cardList.insert(b, deck.get(0));
+		deck.remove(0);
 		return;
 	}
-	cardList[a] = deck.shift();
-	cardList[b] = deck.shift();
-	cardList[c] = deck.shift();
+	cardList.insert(a, deck.get(0));
+	deck.remove(0);
+	cardList.insert(b, deck.get(0));
+	deck.remove(0);
+	cardList.insert(c, deck.get(0));
+	deck.remove(0);
 }
 
 function newDeck() {
@@ -125,7 +131,7 @@ function newDeck() {
 		for(var j = 1; j < 4; j++) {
 			for(var k = 1; k < 4; k++) {
 				for(var m = 1; m < 4; m++) {
-					deck[cardIndex] = new set.Card(i, j, k, m);
+					deck.insert(cardIndex, new set.Card(i, j, k, m));
 					cardIndex++;
 				}
 			}
