@@ -194,8 +194,8 @@ function invokeGameOver() {
 	for(var i = 0; i < cardList.length; i++) {
 		document.getElementById('card' + i).src='card.png';
 	}
-	document.getElementById('card1').src='game.png';
-	document.getElementById('card5').src='over.png';
+	document.getElementById('card1').src=brixcard.png';
+	document.getElementById('card5').src='setcard.png';
 	document.getElementById('card7').src='android.png');
 }
 
