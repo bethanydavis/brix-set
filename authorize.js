@@ -46,7 +46,7 @@ function start(){
 // The first time a file is opened, it must be initialized with the document structure.
 // This function will add a collaborative string to our model at the root. 
 function onFileInitialize(model) {
-	alert('Initializing');
+	//alert('Initializing');
 	var deck = model.createList();
 	var cardList = model.createList();
 	var playerScores = model.createMap();
@@ -67,20 +67,20 @@ function onFileInitialize(model) {
 // wire up the data model to the UI.
 function onFileLoaded(doc) {
 	window.doc = doc;
-	alert('File loaded.');
-
+	//alert('File loaded.');
+	ourmodel = doc.getModel();
 	//Listen for changes to cards. 
 	var cardList = ourmodel.getRoot().get('cardList');
 	cardList.addEventListener(gapi.drive.realtime.EventType.VALUES_ADDED, updateCardImages);
 	cardList.addEventListener(gapi.drive.realtime.EventType.VALUES_SET, updateCardImages);
 	
 	//Get this player number and increment global number of players
-	var playerNumber = doc.getModel().getRoot().get('numPlayers');
+	var playerNumber = ourmodel.getRoot().get('numPlayers');
 	playerNumber += 1;
-	doc.getModel().getRoot().set('numPlayers', playerNumber);
-
+	ourmodel.getRoot().set('numPlayers', playerNumber);
+	
 	// Add new player to the 'players' map. 
-	var scores = doc.getModel().getRoot().get('playerScores');
+	var scores = ourmodel.getRoot().get('playerScores');
 	var playerName = 'Player ' + playerNumber;
 	window.doc.playerName = playerName;
 	document.getElementById("playerLabel").innerHTML = "<b>" + window.doc.playerName + "</b>";
@@ -100,19 +100,20 @@ var updateCardImages = function(){
 	for (var i = 0; i < 12; i++){
 		var card = cardList.get(i);
 		document.getElementById('card' + i).src=card.imgUrlString;
+		
 	}
-	
+	resetClicks();
 }
 
 var updatePlayers = function(event){
-	var scores = window.doc.getModel().getRoot().get('playerScores')
+	var scores = window.ourmodel.getRoot().get('playerScores')
 	var infoString = "<b>Players:</b><br><br>";
 	var keys = scores.keys();
 	for (i = 0; i < keys.length; i++){
 		infoString += "<b>" + keys[i] + "</b>: " + scores.get(keys[i]) + "<br>";
 	}
 	document.getElementById("playerInfo").innerHTML = infoString;
-	//alert("Players were updated! " + window.doc.getModel().getRoot().get('players'));
+	//alert("Players were updated! " + window.ourmodel.getRoot().get('players'));
 };
 
 
@@ -146,8 +147,8 @@ set.Card = function(shape, number, shading, color) {
 	this.imgUrlString = ((((('images/img' + shape) + number) + shading) + color) + '.png')
 }
 
-var cardList; 
-var deck; 
+/*var cardList; 
+var deck; */
 
 var first;
 var second;
@@ -161,7 +162,6 @@ function doClick(cardNum) {
 	}
 	else if(second == undefined) {
 		second = cardNum;
-		return false;
 	}
 	else if(third == undefined) {
 		third = cardNum;
@@ -174,6 +174,7 @@ function doClick(cardNum) {
 		}	
 		resetClicks();
 	}
+	return false;
 }
 
 function resetClicks() {
@@ -193,6 +194,8 @@ function isSet(click1, click2, click3) {
 	if(click1 == click2 || click2 == click3 || click3 == click1) {
 		return false;
 	}
+
+	var cardList = ourmodel.getRoot().get('cardList');
 	
 	var conditionsMet = true;
 	var card1 = cardList.get(click1);
@@ -220,6 +223,7 @@ function isSet(click1, click2, click3) {
 
 //A really inefficient way to check for the existence of a set within the current visible cards
 function existsSet() {
+	var cardList = ourmodel.getRoot().get('cardList');
 	for(var i = 0; i < cardList.length; i++){
 		for(var j = 0; j < cardList.length; j++){
 			for(var k = 0; k < cardList.length; k++){
@@ -233,11 +237,15 @@ function existsSet() {
 } 
 
 function isGameOver() {
+	var cardList = ourmodel.getRoot().get('cardList');
+	var deck = ourmodel.getRoot().get('deck');
 	return cardList.length == 0 || (deck.length == 0 && !existsSet());
 }
 
 // for up to 3 cards: gets next card from deck, removes from deck, replaces in visible card list at index, updates image
 function deal3(a, b, c) {
+	var cardList = ourmodel.getRoot().get('cardList');
+	var deck = ourmodel.getRoot().get('deck');
 	if(deck.length == 0) {
 		return;
 	}
@@ -294,6 +302,7 @@ function deal3(a, b, c) {
 }
 
 function newDeck() {
+	var deck = ourmodel.getRoot().get('deck');
 	var cardIndex = 0;
 	//populates each of 81 cards
 	for(var i = 1; i < 4; i++) {
@@ -313,8 +322,8 @@ function shuffleDeck() {
 }
 
 function startGame() {
-	cardList = ourmodel.getRoot().get('cardList'); //visible cards, collab
-	deck = ourmodel.getRoot().get('deck'); //rest of cards - collab
+	var cardList = ourmodel.getRoot().get('cardList'); //visible cards, collab
+	var deck = ourmodel.getRoot().get('deck'); //rest of cards - collab
 	for(var i = 0; i < 12; i++) {
 		cardList.insert(i, "temp");
 	}	
@@ -327,13 +336,14 @@ function startGame() {
 }
 
 function incrementScore(quantity){
-	var scores = window.doc.get('playerScores');
+	var scores = ourmodel.getRoot().get('playerScores');
 	var updatedScore = scores.get(window.doc.playerName);
 	updatedScore += quantity;
 	scores.set(window.doc.playerName, updatedScore);
 }
 
 function invokeGameOver() {
+	var cardList = ourmodel.getRoot().get('cardList');
 	for(var i = 0; i < cardList.length; i++) {
 		document.getElementById('card' + i).src='images/card.png';
 	}
@@ -343,11 +353,6 @@ function invokeGameOver() {
 }
 
 
-function incrementScore(quantity){
-	var scores = ourmodel.getRoot().get('playerScores');
-	var updatedScore = scores.get(window.doc.playerName);
-	updatedScore += quantity;
-	scores.set(window.doc.playerName, updatedScore);
-}
+
 
 
