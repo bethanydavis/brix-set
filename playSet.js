@@ -5,7 +5,7 @@ set.Card = function(shape, number, shading, color) {
 	this.num = number;
 	this.shading = shading;
 	this.color = color;
-	this.imgUrlString = ((((('img' + shape) + number) + shading) + color) + '.png')
+	this.imgUrlString = ((((('images/img' + shape) + number) + shading) + color) + '.png')
 }
 
 var cardList = document.getModel().get('cardList'); //visible cards, collab
@@ -192,11 +192,11 @@ function incrementScore(quantity){
 
 function invokeGameOver() {
 	for(var i = 0; i < cardList.length; i++) {
-		document.getElementById('card' + i).src='card.png';
+		document.getElementById('card' + i).src='images/card.png';
 	}
-	document.getElementById('card1').src=brixcard.png';
-	document.getElementById('card5').src='setcard.png';
-	document.getElementById('card7').src='android.png');
+	document.getElementById('card1').src='images/brixcard.png';
+	document.getElementById('card5').src='images/setcard.png';
+	document.getElementById('card6').src='images/android.png');
 }
 
 
