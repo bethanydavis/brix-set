@@ -7,8 +7,8 @@ set.Card = function(shape, number, shading, color) {
 	this.color = color;
 }
 
-var cardList = []; //visible cards TODO make collaborative
-var deck = []; //rest of cards TODO make collaborative
+var cardList = document.getModel().get('cardList'); //visible cards, collab
+var deck = document.getModel().get('deck'); //rest of cards - collab
 
 var first;
 var second;
