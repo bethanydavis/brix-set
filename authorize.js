@@ -186,6 +186,10 @@ function doClick(cardNum) {
 			} else {
 				deal3(first, second, third);
 			}
+			if (isGameOver()){
+				ourmodel.getRoot().get('updates').push('invokeGameOver');
+				return;
+			}
 		}	
 		resetClicks();
 		updateCardImages();
@@ -295,6 +299,8 @@ function invokeGameOver() {
 	document.getElementById('card1').src='images/brixcard.png';
 	document.getElementById('card5').src='images/setcard.png';
 	document.getElementById('card6').src='images/androidcard.png';
+	//tell everyone to reset their clicks.
+	ourmodel.getRoot().get('updates').push('resetClicks');
 }
 
 function requestAdd3(){
@@ -339,6 +345,7 @@ function startGame() {
 		cardList.insert(i, "empty");
 	}	
 	newDeck();
+	debugger;
 	shuffleDeck();
 	deal3(0, 1, 2);
 	deal3(3, 4, 5);
@@ -365,7 +372,7 @@ function newDeck() {
 function shuffleDeck() {
 	var deck = ourmodel.getRoot().get('deck');
 	for(var i = 0; i < deck.length; i++) {
-		var randomIndex = Math.random() * (deck.length - i) + i; //in range i, len-1
+		var randomIndex = Math.floor(Math.random() * (deck.length - i + 1)) + i; //in range i, len-1
 		var temp = deck.get(randomIndex);
 		var replace = deck.get(i);
 		deck.insert(i, temp);
@@ -425,7 +432,7 @@ var update = function(){
 	alert("update: " + str);
 	if (str == "resetClicks")
 		resetClicks();
-	if (str == "invokeGameOver");
+	else if (str == "invokeGameOver")
 		invokeGameOver();
 }
 
