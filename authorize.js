@@ -165,6 +165,7 @@ function rearrangeCards(a, b, c){
 // Given the cardNum that a user clicks on, set the click value to that index.  If it is the third click,
 // check if a set has been selected, and return whether a set has been selected.
 function doClick(cardNum) {
+	if(gameOver) return;
 	var cardList = ourmodel.getRoot().get('cardList');
 	if(first == undefined) {
 		first = cardNum;
@@ -361,7 +362,16 @@ function newDeck() {
 }
 
 function shuffleDeck() {
-	//deck.sort(function() { return 0.5 - Math.random() });
+	var deck = ourmodel.getRoot().get('deck');
+	for(var i = 0; i < deck.length; i++) {
+		var randomIndex = Math.random() * (deck.length - i) + i; //in range i, len-1
+		var temp = deck.get(randomIndex);
+		var replace = deck.get(i);
+		deck.insert(i, temp);
+		deck.insert(randomIndex, replace);
+		deck.remove(randomIndex+1);
+		deck.remove(i+1);
+	}
 }
 
 
