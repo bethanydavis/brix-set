@@ -1,4 +1,8 @@
-// Create a new instance of the realtime utility with your client ID.
+
+
+////////////////////////////////////////////////////////////////////////////////////////////
+///////////////      Variables n' stuff ////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 			
 var realtimeUtils = new utils.RealtimeUtils({
 	clientId: '225985226262-jedl3qg3v80e3rl7nrtgab9oqh4oflrv.apps.googleusercontent.com'
@@ -8,43 +12,24 @@ authorize();
 
 var ourmodel;
 
-function authorize() {
-//Attempt to authorize
-	realtimeUtils.authorize(function(response){
-		if (response.error){
-			// Authorization failed because this is the first time the user has used your application, 
-			// show the authorize button to prompt them to authorize manually. 
-			var button = document.getElementById('authorize_button');
-			alert("You must authorize this app.");
-			button.disabled=false;
-			button.addEventListener('click', function(){
-				realtimeUtils.authorize(function(response){
-					start();
-				}, true);
-			});
-		} else {
-			start();
-		}
-	}, false);
-}
-			
-function start(){
-	//With auth taken care of, load a file, or create one if there is not an id in the URL.
-	var id = realtimeUtils.getParam('id');
-	if (id){
-		// Load the document id from the URL.
-		realtimeUtils.load(id.replace('/', ''), onFileLoaded, onFileInitialize);
-	} else {
-		// No id in the URL. Create a new document, add it to the URL.
-		realtimeUtils.createRealtimeFile('BrixSet Game', function(response) {
-			window.history.pushState(null, null, '?id=' + response.id);
-			realtimeUtils.load(response.id, onFileLoaded, onFileInitialize);
-		});
-	}
+var set = {};
+set.Card = function(shape, number, shading, color) {
+	this.shape = shape;
+	this.num = number;
+	this.shading = shading;
+	this.color = color;
+	this.imgUrlString = ((((('images/img' + shape) + number) + shading) + color) + '.png')
 }
 
-// The first time a file is opened, it must be initialized with the document structure.
-// This function will add a collaborative string to our model at the root. 
+var first;
+var second;
+var third;
+
+
+////////////////////////////////////////////////////////////////////////////////////////////
+///////////////      Called only once    ///////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
+
 function onFileInitialize(model) {
 	//alert('Initializing');
 	var deck = model.createList();
@@ -59,12 +44,49 @@ function onFileInitialize(model) {
 	ourmodel = model;
 
 	startGame();
-
-	
 }
 
-// After a file has been initialized and loaded, we can access the document. We will 
-// wire up the data model to the UI.
+function startGame() {
+	var cardList = ourmodel.getRoot().get('cardList'); //visible cards, collab
+	var deck = ourmodel.getRoot().get('deck'); //rest of cards - collab
+	for(var i = 0; i < 12; i++) {
+		cardList.insert(i, "temp");
+	}	
+	newDeck();
+	shuffleDeck();
+	deal3(0, 1, 2);
+	deal3(3, 4, 5);
+	deal3(6, 7, 8);
+	deal3(9, 10, 11);
+}
+
+function newDeck() {
+	var deck = ourmodel.getRoot().get('deck');
+	var cardIndex = 0;
+	//populates each of 81 cards
+	for(var i = 1; i < 4; i++) {
+		for(var j = 1; j < 4; j++) {
+			for(var k = 1; k < 4; k++) {
+				for(var m = 1; m < 4; m++) {
+					deck.insert(cardIndex, new set.Card(i, j, k, m));
+					cardIndex++;
+				}
+			}
+		}
+	}
+}
+
+function shuffleDeck() {
+	//deck.sort(function() { return 0.5 - Math.random() });
+}
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////
+///////////////      Called anytime     ////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
+
 function onFileLoaded(doc) {
 	window.doc = doc;
 	//alert('File loaded.');
@@ -93,66 +115,53 @@ function onFileLoaded(doc) {
 	//alert("Players: " + players + ". You are " + player.name + ".");
 }
 
-// Called when a visible card has changed. 
-var updateCardImages = function(){
+// for up to 3 cards: gets next card from deck, removes from deck, replaces in visible card list at index, updates image
+function deal3(a, b, c) {
 	var cardList = ourmodel.getRoot().get('cardList');
+	var deck = ourmodel.getRoot().get('deck');
+	if(deck.length == 0) {
+		return;
+	}
+
+	//first card
+	var firstOfThree = deck.get(0);
+	deck.remove(0);
+	var firstValOfThree = [firstOfThree];
+	cardList.replaceRange(a, firstValOfThree);
+	document.getElementById('card' + a).src=firstOfThree.imgUrlString;
+
+
+	//second card
+	var twoOfThree = deck.get(0);
+	deck.remove(0);
+	var twoValOfThree = [twoOfThree];
+	cardList.replaceRange(b, twoValOfThree);
+	document.getElementById('card' + b).src=twoOfThree.imgUrlString;
+
 	
-	for (var i = 0; i < 12; i++){
-		var card = cardList.get(i);
-		document.getElementById('card' + i).src=card.imgUrlString;
-		
-	}
-	resetClicks();
+	//third card
+	var threeOfThree = deck.get(0);
+	deck.remove(0);
+	var threeValOfThree = [threeOfThree];
+	cardList.replaceRange(c, threeValOfThree);
+	document.getElementById('card' + c).src=threeOfThree.imgUrlString;
 }
 
-var updatePlayers = function(event){
-	var scores = window.ourmodel.getRoot().get('playerScores')
-	var infoString = "<b>Players:</b><br><br>";
-	var keys = scores.keys();
-	for (i = 0; i < keys.length; i++){
-		infoString += "<b>" + keys[i] + "</b>: " + scores.get(keys[i]) + "<br>";
+function newDeck() {
+	var deck = ourmodel.getRoot().get('deck');
+	var cardIndex = 0;
+	//populates each of 81 cards
+	for(var i = 1; i < 4; i++) {
+		for(var j = 1; j < 4; j++) {
+			for(var k = 1; k < 4; k++) {
+				for(var m = 1; m < 4; m++) {
+					deck.insert(cardIndex, new set.Card(i, j, k, m));
+					cardIndex++;
+				}
+			}
+		}
 	}
-	document.getElementById("playerInfo").innerHTML = infoString;
-	//alert("Players were updated! " + window.ourmodel.getRoot().get('players'));
-};
-
-
-
-
-
-
-
-
-///////////////////////////////////////////////////////////////////////////////////
-///////     0_0
-//////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-var set = {};
-
-set.Card = function(shape, number, shading, color) {
-	this.shape = shape;
-	this.num = number;
-	this.shading = shading;
-	this.color = color;
-	this.imgUrlString = ((((('images/img' + shape) + number) + shading) + color) + '.png')
 }
-
-/*var cardList; 
-var deck; */
-
-var first;
-var second;
-var third;
 
 // Given the cardNum that a user clicks on, set the click value to that index.  If it is the third click,
 // check if a set has been selected, and return whether a set has been selected.
@@ -181,6 +190,13 @@ function resetClicks() {
 	first = undefined;
 	second = undefined;
 	third = undefined;
+}
+
+function incrementScore(quantity){
+	var scores = ourmodel.getRoot().get('playerScores');
+	var updatedScore = scores.get(window.doc.playerName);
+	updatedScore += quantity;
+	scores.set(window.doc.playerName, updatedScore);
 }
 
 //clicks are ints corresponding to cardList indeces
@@ -242,106 +258,6 @@ function isGameOver() {
 	return cardList.length == 0 || (deck.length == 0 && !existsSet());
 }
 
-// for up to 3 cards: gets next card from deck, removes from deck, replaces in visible card list at index, updates image
-function deal3(a, b, c) {
-	var cardList = ourmodel.getRoot().get('cardList');
-	var deck = ourmodel.getRoot().get('deck');
-	if(deck.length == 0) {
-		return;
-	}
-	/*if(deck.length == 1) {
-		// can only deal 1 card
-		var firstCard = deck.get(0);
-		deck.remove(0);
-		var value = [firstCard];
-		cardList.replaceRange(a, value);
-		document.getElementById('card' + a).src=firstCard.imgUrlString;
-		return;
-	}
-	if(deck.length == 2) {
-		//can only deal 2 cards
-
-		var oneOfTwo = deck.get(0);
-		deck.remove(0);
-		var valueOne = [oneOfTwo];
-		cardList.replaceRange(a, valueOne);
-		document.getElementById('card' + a).src=oneOfTwo.imgUrlString;
-		
-		
-		var twoOfTwo = deck.get(0);
-		deck.remove(0);
-		var valueTwo = [twoOfTwo];
-		cardList.replaceRange(b, valueTwo);
-		document.getElementById('card' + b).src=twoOfTwo.imgUrlString;
-		return;
-	}*/
-	// dealing all 3 cards otherwise:
-
-	//first card
-	var firstOfThree = deck.get(0);
-	deck.remove(0);
-	var firstValOfThree = [firstOfThree];
-	cardList.replaceRange(a, firstValOfThree);
-	document.getElementById('card' + a).src=firstOfThree.imgUrlString;
-
-
-	//second card
-	var twoOfThree = deck.get(0);
-	deck.remove(0);
-	var twoValOfThree = [twoOfThree];
-	cardList.replaceRange(b, twoValOfThree);
-	document.getElementById('card' + b).src=twoOfThree.imgUrlString;
-
-	
-	//third card
-	var threeOfThree = deck.get(0);
-	deck.remove(0);
-	var threeValOfThree = [threeOfThree];
-	cardList.replaceRange(c, threeValOfThree);
-	document.getElementById('card' + c).src=threeOfThree.imgUrlString;
-}
-
-function newDeck() {
-	var deck = ourmodel.getRoot().get('deck');
-	var cardIndex = 0;
-	//populates each of 81 cards
-	for(var i = 1; i < 4; i++) {
-		for(var j = 1; j < 4; j++) {
-			for(var k = 1; k < 4; k++) {
-				for(var m = 1; m < 4; m++) {
-					deck.insert(cardIndex, new set.Card(i, j, k, m));
-					cardIndex++;
-				}
-			}
-		}
-	}
-}
-
-function shuffleDeck() {
-	//deck.sort(function() { return 0.5 - Math.random() });
-}
-
-function startGame() {
-	var cardList = ourmodel.getRoot().get('cardList'); //visible cards, collab
-	var deck = ourmodel.getRoot().get('deck'); //rest of cards - collab
-	for(var i = 0; i < 12; i++) {
-		cardList.insert(i, "temp");
-	}	
-	newDeck();
-	shuffleDeck();
-	deal3(0, 1, 2);
-	deal3(3, 4, 5);
-	deal3(6, 7, 8);
-	deal3(9, 10, 11);
-}
-
-function incrementScore(quantity){
-	var scores = ourmodel.getRoot().get('playerScores');
-	var updatedScore = scores.get(window.doc.playerName);
-	updatedScore += quantity;
-	scores.set(window.doc.playerName, updatedScore);
-}
-
 function invokeGameOver() {
 	var cardList = ourmodel.getRoot().get('cardList');
 	for(var i = 0; i < cardList.length; i++) {
@@ -351,6 +267,80 @@ function invokeGameOver() {
 	document.getElementById('card5').src='images/setcard.png';
 	document.getElementById('card6').src='images/android.png';
 }
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////
+///////////////      UI Updates         ////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
+
+// Called when a visible card has changed. 
+var updateCardImages = function(){
+	var cardList = ourmodel.getRoot().get('cardList');
+	
+	for (var i = 0; i < 17; i++){
+		if (cardList.length > i){
+			var card = cardList.get(i);
+			document.getElementById('card' + i).src=card.imgUrlString;
+			document.getElementById('card' + i).hidden=false;
+		}	
+	}
+	resetClicks();
+}
+
+var updatePlayers = function(event){
+	var scores = window.ourmodel.getRoot().get('playerScores')
+	var infoString = "<b>Players:</b><br><br>";
+	var keys = scores.keys();
+	for (i = 0; i < keys.length; i++){
+		infoString += "<b>" + keys[i] + "</b>: " + scores.get(keys[i]) + "<br>";
+	}
+	document.getElementById("playerInfo").innerHTML = infoString;
+	//alert("Players were updated! " + window.ourmodel.getRoot().get('players'));
+};
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////
+///////////////      Auth/Doc Setup     ////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
+
+function authorize() {
+//Attempt to authorize
+	realtimeUtils.authorize(function(response){
+		if (response.error){
+			// Authorization failed because this is the first time the user has used your application, 
+			// show the authorize button to prompt them to authorize manually. 
+			var button = document.getElementById('authorize_button');
+			alert("You must authorize this app.");
+			button.disabled=false;
+			button.addEventListener('click', function(){
+				realtimeUtils.authorize(function(response){
+					start();
+				}, true);
+			});
+		} else {
+			start();
+		}
+	}, false);
+}
+			
+function start(){
+	//With auth taken care of, load a file, or create one if there is not an id in the URL.
+	var id = realtimeUtils.getParam('id');
+	if (id){
+		// Load the document id from the URL.
+		realtimeUtils.load(id.replace('/', ''), onFileLoaded, onFileInitialize);
+	} else {
+		// No id in the URL. Create a new document, add it to the URL.
+		realtimeUtils.createRealtimeFile('BrixSet Game', function(response) {
+			window.history.pushState(null, null, '?id=' + response.id);
+			realtimeUtils.load(response.id, onFileLoaded, onFileInitialize);
+		});
+	}
+}
+
 
 
 
