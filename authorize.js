@@ -27,63 +27,6 @@ var third;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////
-///////////////      Called only once    ///////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////
-
-function onFileInitialize(model) {
-	//alert('Initializing');
-	var deck = model.createList();
-	var cardList = model.createList();
-	var playerScores = model.createMap();
-	
-	model.getRoot().set('numPlayers', 0);
-	model.getRoot().set('deck', deck);
-	model.getRoot().set('cardList', cardList);
-	model.getRoot().set('playerScores', playerScores);
-	
-	ourmodel = model;
-
-	startGame();
-}
-
-function startGame() {
-	var cardList = ourmodel.getRoot().get('cardList'); //visible cards, collab
-	var deck = ourmodel.getRoot().get('deck'); //rest of cards - collab
-	for(var i = 0; i < 12; i++) {
-		cardList.insert(i, "temp");
-	}	
-	newDeck();
-	shuffleDeck();
-	deal3(0, 1, 2);
-	deal3(3, 4, 5);
-	deal3(6, 7, 8);
-	deal3(9, 10, 11);
-}
-
-function newDeck() {
-	var deck = ourmodel.getRoot().get('deck');
-	var cardIndex = 0;
-	//populates each of 81 cards
-	for(var i = 1; i < 4; i++) {
-		for(var j = 1; j < 4; j++) {
-			for(var k = 1; k < 4; k++) {
-				for(var m = 1; m < 4; m++) {
-					deck.insert(cardIndex, new set.Card(i, j, k, m));
-					cardIndex++;
-				}
-			}
-		}
-	}
-}
-
-function shuffleDeck() {
-	//deck.sort(function() { return 0.5 - Math.random() });
-}
-
-
-
-
-////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////      Called anytime     ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -163,9 +106,55 @@ function newDeck() {
 	}
 }
 
+function rearrangeCards(a, b, c){
+	var cardList = ourmodel.getRoot().get('cardList');
+	cardList.set(a, "empty");
+	cardList.set(b, "empty");
+	cardList.set(c, "empty");
+
+	// Get backmost card
+	var backmostCardIndex = 17;
+	while (cardList.get(backmostCardIndex) == "empty")
+		backmostCardIndex -= 1;
+	var emptySlot = 0;
+	while (cardList.get(emptySlot) != "empty")
+		emptySlot += 1;
+	if (emptySlot > backmostCardIndex)
+		return;
+	
+	// Put that card in an empty slot. 
+	cardList.set(emptySlot, cardList.get(backmostCardIndex));
+	cardList.set(backmostCardIndex, "empty");
+
+	// Get next backmost card
+	while (cardList.get(backmostCardIndex) == "empty")
+		backmostCardIndex -= 1;
+	while (cardList.get(emptySlot) != "empty")
+		emptySlot += 1;
+	if (emptySlot > backmostCardIndex)
+		return;
+
+	// Put that card in an empty slot. 
+	cardList.set(emptySlot, cardList.get(backmostCardIndex));
+	cardList.set(backmostCardIndex, "empty");
+
+	// Get next backmost card
+	while (cardList.get(backmostCardIndex) == "empty")
+		backmostCardIndex -= 1;
+	while (cardList.get(emptySlot) != "empty")
+		emptySlot += 1;
+	if (emptySlot > backmostCardIndex)
+		return;
+
+	// Put that card in an empty slot. 
+	cardList.set(emptySlot, cardList.get(backmostCardIndex));
+	cardList.set(backmostCardIndex, "empty");
+}
+
 // Given the cardNum that a user clicks on, set the click value to that index.  If it is the third click,
 // check if a set has been selected, and return whether a set has been selected.
 function doClick(cardNum) {
+	var cardList = ourmodel.getRoot().get('cardList');
 	if(first == undefined) {
 		first = cardNum;
 	}
@@ -176,6 +165,10 @@ function doClick(cardNum) {
 		third = cardNum;
 		if(isSet(first, second, third)) {
 			incrementScore(3);
+			if (cardList.get(12) != "empty"){ 
+				// There are more than 12 cards, so don't deal any more. 
+				rearrangeCards(first, second, third);
+			}
 			deal3(first, second, third);
 			if(isGameOver()){
 				invokeGameOver();
@@ -268,6 +261,71 @@ function invokeGameOver() {
 	document.getElementById('card6').src='images/android.png';
 }
 
+function requestAdd3(){
+	var cardList = ourmodel.getRoot().get('cardList');
+	//if (!existsSet()){
+		if (cardList.get(12) == "empty")
+			deal3(12, 13, 14);
+		else if (cardList.get(15) == "empty")
+			deal3(15, 16, 17);
+	//}
+}
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////
+///////////////      Called only once    ///////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
+
+function onFileInitialize(model) {
+	//alert('Initializing');
+	var deck = model.createList();
+	var cardList = model.createList();
+	var playerScores = model.createMap();
+	
+	model.getRoot().set('numPlayers', 0);
+	model.getRoot().set('deck', deck);
+	model.getRoot().set('cardList', cardList);
+	model.getRoot().set('playerScores', playerScores);
+	
+	ourmodel = model;
+
+	startGame();
+}
+
+function startGame() {
+	var cardList = ourmodel.getRoot().get('cardList'); //visible cards, collab
+	var deck = ourmodel.getRoot().get('deck'); //rest of cards - collab
+	for(var i = 0; i < 18; i++) {
+		cardList.insert(i, "empty");
+	}	
+	newDeck();
+	shuffleDeck();
+	deal3(0, 1, 2);
+	deal3(3, 4, 5);
+	deal3(6, 7, 8);
+	deal3(9, 10, 11);
+}
+
+function newDeck() {
+	var deck = ourmodel.getRoot().get('deck');
+	var cardIndex = 0;
+	//populates each of 81 cards
+	for(var i = 1; i < 4; i++) {
+		for(var j = 1; j < 4; j++) {
+			for(var k = 1; k < 4; k++) {
+				for(var m = 1; m < 4; m++) {
+					deck.insert(cardIndex, new set.Card(i, j, k, m));
+					cardIndex++;
+				}
+			}
+		}
+	}
+}
+
+function shuffleDeck() {
+	//deck.sort(function() { return 0.5 - Math.random() });
+}
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -278,12 +336,19 @@ function invokeGameOver() {
 var updateCardImages = function(){
 	var cardList = ourmodel.getRoot().get('cardList');
 	
-	for (var i = 0; i < 17; i++){
-		if (cardList.length > i){
-			var card = cardList.get(i);
-			document.getElementById('card' + i).src=card.imgUrlString;
+	for (var i = 0; i < 18; i++){
+		var card = cardList.get(i);
+		if (card != "empty"){ // There is a card here
+			if (first == i || second == i || third == i){
+				document.getElementById('card' + i).src=card.imgUrlString;
+			} else {
+				document.getElementById('card' + i).src=card.imgUrlString;
+			}
 			document.getElementById('card' + i).hidden=false;
-		}	
+		}	else {
+			// card contains "empty", should be hidden.
+			document.getElementById('card' + i).hidden=true;
+		}
 	}
 	resetClicks();
 }
