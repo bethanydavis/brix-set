@@ -42,8 +42,9 @@ function onFileLoaded(doc) {
 	cardList.addEventListener(gapi.drive.realtime.EventType.VALUES_ADDED, updateCardImages);
 	cardList.addEventListener(gapi.drive.realtime.EventType.VALUES_SET, updateCardImages);
 	
-	//var updateString = ourmodel.getRoot().get('updateString');
-	//updateString.addEventListener(gapi.drive.realtime.EventType.TEXT_INSERTED, update());
+	var updates = ourmodel.getRoot().get('updates');
+	updates.addEventListener(gapi.drive.realtime.EventType.VALUES_ADDED, update);
+	updates.addEventListener(gapi.drive.realtime.EventType.VALUES_SET, update);
 
 	//Get this player number and increment global number of players
 	var playerNumber = ourmodel.getRoot().get('numPlayers');
@@ -66,7 +67,7 @@ function onFileLoaded(doc) {
 
 // for up to 3 cards: gets next card from deck, removes from deck, replaces in visible card list at index, updates image
 function deal3(a, b, c) {
-	//ourmodel.getRoot().set('updateString', 'resetClicks'); 
+	ourmodel.getRoot().get('updates').push('resetClicks'); 
 
 	var cardList = ourmodel.getRoot().get('cardList');
 	var deck = ourmodel.getRoot().get('deck');
@@ -316,13 +317,13 @@ function onFileInitialize(model) {
 	var deck = model.createList();
 	var cardList = model.createList();
 	var playerScores = model.createMap();
-	var updateString = model.createString();
+	var updates = model.createList();
 	
 	model.getRoot().set('numPlayers', 0);
 	model.getRoot().set('deck', deck);
 	model.getRoot().set('cardList', cardList);
 	model.getRoot().set('playerScores', playerScores);
-	model.getRoot().set('updateString', updateString);
+	model.getRoot().set('updates', updates);
 	
 	
 	ourmodel = model;
@@ -406,9 +407,11 @@ var updatePlayers = function(event){
 	//alert("Players were updated! " + window.ourmodel.getRoot().get('players'));
 };
 
-//called when the collaborative updateString variable changes. 
+//called when the collaborative updates variable changes. 
+
 var update = function(){
-	var str = ourmodel.getRoot().get('updateString');
+	var updates = ourmodel.getRoot().get('updates');
+	var str = updates.get(updates.length-1);
 	alert("update: " + str);
 	if (str == "resetClicks")
 		resetClicks();
