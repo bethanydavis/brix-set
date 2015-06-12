@@ -19,11 +19,14 @@ set.Card = function(shape, number, shading, color) {
 	this.shading = shading;
 	this.color = color;
 	this.imgUrlString = ((((('images/img' + shape) + number) + shading) + color) + '.png')
+	this.imgClickedUrlString = ((((('images/img' + shape) + number) + shading) + color) + '-clicked.png')
 }
 
 var first;
 var second;
 var third;
+
+var gameOver = false;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -39,6 +42,9 @@ function onFileLoaded(doc) {
 	cardList.addEventListener(gapi.drive.realtime.EventType.VALUES_ADDED, updateCardImages);
 	cardList.addEventListener(gapi.drive.realtime.EventType.VALUES_SET, updateCardImages);
 	
+	//var updateString = ourmodel.getRoot().get('updateString');
+	//updateString.addEventListener(gapi.drive.realtime.EventType.TEXT_INSERTED, update());
+
 	//Get this player number and increment global number of players
 	var playerNumber = ourmodel.getRoot().get('numPlayers');
 	playerNumber += 1;
@@ -60,9 +66,13 @@ function onFileLoaded(doc) {
 
 // for up to 3 cards: gets next card from deck, removes from deck, replaces in visible card list at index, updates image
 function deal3(a, b, c) {
+	//ourmodel.getRoot().set('updateString', 'resetClicks'); 
+
 	var cardList = ourmodel.getRoot().get('cardList');
 	var deck = ourmodel.getRoot().get('deck');
 	if(deck.length == 0) {
+		if (existsSet())
+			rearrangeCards(a, b, c);
 		return;
 	}
 
@@ -149,6 +159,7 @@ function rearrangeCards(a, b, c){
 	// Put that card in an empty slot. 
 	cardList.set(emptySlot, cardList.get(backmostCardIndex));
 	cardList.set(backmostCardIndex, "empty");
+	//alert('moved card ' + backmostCardIndex + ' to ' + 
 }
 
 // Given the cardNum that a user clicks on, set the click value to that index.  If it is the third click,
@@ -157,9 +168,11 @@ function doClick(cardNum) {
 	var cardList = ourmodel.getRoot().get('cardList');
 	if(first == undefined) {
 		first = cardNum;
+		updateCardImages();
 	}
 	else if(second == undefined) {
 		second = cardNum;
+		updateCardImages();
 	}
 	else if(third == undefined) {
 		third = cardNum;
@@ -168,13 +181,12 @@ function doClick(cardNum) {
 			if (cardList.get(12) != "empty"){ 
 				// There are more than 12 cards, so don't deal any more. 
 				rearrangeCards(first, second, third);
-			}
-			deal3(first, second, third);
-			if(isGameOver()){
-				invokeGameOver();
+			} else {
+				deal3(first, second, third);
 			}
 		}	
 		resetClicks();
+		updateCardImages();
 	}
 	return false;
 }
@@ -183,6 +195,23 @@ function resetClicks() {
 	first = undefined;
 	second = undefined;
 	third = undefined;
+}
+
+function getMeASet(){
+	resetClicks();
+	var cardList = ourmodel.getRoot().get('cardList');
+	for(var i = 0; i < cardList.length; i++){
+		for(var j = 0; j < cardList.length; j++){
+			for(var k = 0; k < cardList.length; k++){
+				if(isSet(i, j, k)){
+					setTimeout(function(){doClick(i)}, 10);
+					setTimeout(function(){doClick(j)}, 300);
+					setTimeout(function(){doClick(k)}, 600);
+					return;
+				}
+			}
+		}
+	}
 }
 
 function incrementScore(quantity){
@@ -252,13 +281,18 @@ function isGameOver() {
 }
 
 function invokeGameOver() {
+	gameOver = true;
 	var cardList = ourmodel.getRoot().get('cardList');
-	for(var i = 0; i < cardList.length; i++) {
+	for(var i = 0; i < 12; i++) {
 		document.getElementById('card' + i).src='images/card.png';
+//		document.getElementById('card' + i).hidden="false";
+	}
+	for(var i = 12; i < 17; i++) {
+		document.getElementById('card' + i).hidden="true";
 	}
 	document.getElementById('card1').src='images/brixcard.png';
 	document.getElementById('card5').src='images/setcard.png';
-	document.getElementById('card6').src='images/android.png';
+	document.getElementById('card6').src='images/androidcard.png';
 }
 
 function requestAdd3(){
@@ -282,11 +316,14 @@ function onFileInitialize(model) {
 	var deck = model.createList();
 	var cardList = model.createList();
 	var playerScores = model.createMap();
+	var updateString = model.createString();
 	
 	model.getRoot().set('numPlayers', 0);
 	model.getRoot().set('deck', deck);
 	model.getRoot().set('cardList', cardList);
 	model.getRoot().set('playerScores', playerScores);
+	model.getRoot().set('updateString', updateString);
+	
 	
 	ourmodel = model;
 
@@ -334,13 +371,16 @@ function shuffleDeck() {
 
 // Called when a visible card has changed. 
 var updateCardImages = function(){
+	if (gameOver)
+		return;
+
 	var cardList = ourmodel.getRoot().get('cardList');
 	
 	for (var i = 0; i < 18; i++){
 		var card = cardList.get(i);
 		if (card != "empty"){ // There is a card here
 			if (first == i || second == i || third == i){
-				document.getElementById('card' + i).src=card.imgUrlString;
+				document.getElementById('card' + i).src=card.imgClickedUrlString;
 			} else {
 				document.getElementById('card' + i).src=card.imgUrlString;
 			}
@@ -350,10 +390,12 @@ var updateCardImages = function(){
 			document.getElementById('card' + i).hidden=true;
 		}
 	}
-	resetClicks();
 }
 
 var updatePlayers = function(event){
+	if (gameOver)
+		return;
+
 	var scores = window.ourmodel.getRoot().get('playerScores')
 	var infoString = "<b>Players:</b><br><br>";
 	var keys = scores.keys();
@@ -364,7 +406,15 @@ var updatePlayers = function(event){
 	//alert("Players were updated! " + window.ourmodel.getRoot().get('players'));
 };
 
-
+//called when the collaborative updateString variable changes. 
+var update = function(){
+	var str = ourmodel.getRoot().get('updateString');
+	alert("update: " + str);
+	if (str == "resetClicks")
+		resetClicks();
+	if (str == "invokeGameOver");
+		invokeGameOver();
+}
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////
