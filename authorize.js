@@ -376,8 +376,8 @@ function shuffleDeck() {
 		var temp = deck.get(randomIndex);
 		var replace = deck.get(i);
 		deck.insert(i, temp);
-		deck.insert(randomIndex, replace);
-		deck.remove(randomIndex+1);
+		deck.insert(randomIndex+1, replace);
+		deck.remove(randomIndex+2);
 		deck.remove(i+1);
 	}
 }
