@@ -8,12 +8,10 @@ h1 {
 }
 
 #cardpanel {
-	float:center;
+	text-align:center;
+	font-size:20px;
 }
 #infopanel {
 	font-family: 'Roboto', sans-serif;
 	background-color:#eeeeee;
-	height:400px;
-	width:150px;
-	float:right;
 }

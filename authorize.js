@@ -26,8 +26,6 @@ var first;
 var second;
 var third;
 
-var gameOver = false;
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////      Called anytime     ////////////////////////////////////////////////////
@@ -166,7 +164,8 @@ function rearrangeCards(a, b, c){
 // Given the cardNum that a user clicks on, set the click value to that index.  If it is the third click,
 // check if a set has been selected, and return whether a set has been selected.
 function doClick(cardNum) {
-	if(gameOver) return;
+	if (ourmodel.getRoot().get('gameStatus').getText() == "gameOver") 
+		return;
 	var cardList = ourmodel.getRoot().get('cardList');
 	if(first == undefined) {
 		first = cardNum;
@@ -187,7 +186,7 @@ function doClick(cardNum) {
 				deal3(first, second, third);
 			}
 			if (isGameOver()){
-				ourmodel.getRoot().get('updates').push('invokeGameOver');
+				invokeGameOver();
 				return;
 			}
 		}	
@@ -210,9 +209,10 @@ function getMeASet(){
 		for(var j = 0; j < cardList.length; j++){
 			for(var k = 0; k < cardList.length; k++){
 				if(isSet(i, j, k)){
-					setTimeout(function(){doClick(i)}, 10);
-					setTimeout(function(){doClick(j)}, 300);
-					setTimeout(function(){doClick(k)}, 600);
+					//alert(i + ', ' + j + ', ' + k);
+					doClick(i);
+					doClick(j);
+					doClick(k);
 					return;
 				}
 			}
@@ -245,6 +245,10 @@ function isSet(click1, click2, click3) {
 	var card1 = cardList.get(click1);
 	var card2 = cardList.get(click2);
 	var card3 = cardList.get(click3);
+
+	if (card1 == "empty" || card2 == "empty" || card3 == "empty"){
+		return false;
+	}
 	
 	var sameColor = (card1.color == card2.color && card2.color == card3.color);
 	var diffColor = (card1.color != card2.color && card2.color != card3.color && card1.color != card3.color);
@@ -264,6 +268,9 @@ function isSet(click1, click2, click3) {
 	conditionsMet = conditionsMet && (sameShading || diffShading);
 	return conditionsMet;
 }
+
+
+
 
 //A really inefficient way to check for the existence of a set within the current visible cards
 function existsSet() {
@@ -287,20 +294,10 @@ function isGameOver() {
 }
 
 function invokeGameOver() {
-	gameOver = true;
-	var cardList = ourmodel.getRoot().get('cardList');
-	for(var i = 0; i < 12; i++) {
-		document.getElementById('card' + i).src='images/card.png';
-//		document.getElementById('card' + i).hidden="false";
-	}
-	for(var i = 12; i < 17; i++) {
-		document.getElementById('card' + i).hidden="true";
-	}
-	document.getElementById('card1').src='images/brixcard.png';
-	document.getElementById('card5').src='images/setcard.png';
-	document.getElementById('card6').src='images/androidcard.png';
+	ourmodel.getRoot().get('gameStatus').setText("gameOver");
+	
 	//tell everyone to reset their clicks.
-	ourmodel.getRoot().get('updates').push('resetClicks');
+	ourmodel.getRoot().get('updates').push('gameOver');
 }
 
 function requestAdd3(){
@@ -325,12 +322,14 @@ function onFileInitialize(model) {
 	var cardList = model.createList();
 	var playerScores = model.createMap();
 	var updates = model.createList();
+	var gameStatus = model.createString();
 	
 	model.getRoot().set('numPlayers', 0);
 	model.getRoot().set('deck', deck);
 	model.getRoot().set('cardList', cardList);
 	model.getRoot().set('playerScores', playerScores);
 	model.getRoot().set('updates', updates);
+	model.getRoot().set('gameStatus', gameStatus);
 	
 	
 	ourmodel = model;
@@ -372,7 +371,7 @@ function newDeck() {
 function shuffleDeck() {
 	var deck = ourmodel.getRoot().get('deck');
 	for(var i = 0; i < deck.length; i++) {
-		var randomIndex = Math.floor(Math.random() * (deck.length - i + 1)) + i; //in range i, len-1
+		var randomIndex = Math.floor(Math.random() * (deck.length - i)) + i; //in range i, len-1
 		var temp = deck.get(randomIndex);
 		var replace = deck.get(i);
 		deck.insert(i, temp);
@@ -389,8 +388,21 @@ function shuffleDeck() {
 
 // Called when a visible card has changed. 
 var updateCardImages = function(){
-	if (gameOver)
+	if (ourmodel.getRoot().get('gameStatus').getText() == "gameOver"){
+		var cardList = ourmodel.getRoot().get('cardList');
+		for(var i = 0; i < 12; i++) {
+			document.getElementById('card' + i).src='images/card.png';
+			document.getElementById('card' + i).hidden=false;
+		}
+		for(var i = 12; i < 17; i++) {
+			document.getElementById('card' + i).hidden=true;
+		}
+		document.getElementById('card1').src='images/brixcard.png';
+		document.getElementById('card5').src='images/setcard.png';
+		document.getElementById('card6').src='images/androidcard.png';
 		return;
+	}
+		
 
 	var cardList = ourmodel.getRoot().get('cardList');
 	
@@ -411,7 +423,7 @@ var updateCardImages = function(){
 }
 
 var updatePlayers = function(event){
-	if (gameOver)
+	if (ourmodel.getRoot().get('gameStatus').getText() == "gameOver")
 		return;
 
 	var scores = window.ourmodel.getRoot().get('playerScores')
@@ -429,11 +441,10 @@ var updatePlayers = function(event){
 var update = function(){
 	var updates = ourmodel.getRoot().get('updates');
 	var str = updates.get(updates.length-1);
-	alert("update: " + str);
 	if (str == "resetClicks")
 		resetClicks();
-	else if (str == "invokeGameOver")
-		invokeGameOver();
+	else if (str == "gameOver")
+		updateCardImages();
 }
 
 
